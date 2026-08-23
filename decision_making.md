@@ -55,3 +55,5 @@ num.txt has the same 10 columns across 2013-2026. Checked 2013q1, 2020q1,
 ### Filer count decline
 Submissions peaked ~9,200 (2012q2), now ~6,200. Real trend — shrinking
 count of US public companies. Not a data quality issue.
+
+![image_1787444722877.png](./image_1787444722877.png "image_1787444722877.png")
