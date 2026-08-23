@@ -3,3 +3,5 @@ data/
 .databricks/
 __pycache__/
 .env
+*.png
+*.jpg
