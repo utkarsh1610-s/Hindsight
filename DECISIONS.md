@@ -57,3 +57,42 @@ Submissions peaked ~9,200 (2012q2), now ~6,200. Real trend — shrinking
 count of US public companies. Not a data quality issue.
 
 ![image_1787444722877.png](./image_1787444722877.png "image_1787444722877.png")
+
+### Concept mapping recovered 32 points of revenue coverage
+Bare tag `Revenues`: 37.1% of filings. After mapping four ASC 606-era
+source tags to canonical REVENUE: 69%. A naive tag filter would have
+dropped ~1/3 of filings, with the loss concentrated pre-2018 — a
+time-correlated coverage discontinuity in the middle of the backtest window.
+
+### COST_OF_REVENUE coverage is structurally limited
+45% overall = 7.4% financials (SIC 6000-6799) + 57% non-financials.
+Financials have no cost-of-goods concept. Not a mapping gap.
+
+### Phase 4 factor: ROA, not gross profitability
+NET_INCOME (90%) / ASSETS (98%) vs COST_OF_REVENUE (45%). The factor is
+instrumentation for measuring naive-vs-PIT disagreement; unstable coverage
+would conflate universe churn with restatement contamination. ROA also
+retains financials, keeping the universe whole.
+
+
+## Phase 2 — Silver
+
+### Funnel: 181.4M -> 45.1M (24.9%)
+- Segment-level facts:        ~84.8M  (largest single exclusion)
+- Below concept-map threshold: ~35M   (tags in <5% of filings)
+- Non-USD / custom tags:       ~16M
+- Quarantined (broken):          2.2k (0.0012%)
+
+### Quarantine vs exclusion
+
+Quarantine = data that is broken. Exclusion = valid data out of scope.
+First attempt conflated them: qtrs 2/3 (semi-annual, nine-month cumulative)
+were being quarantined as failures, putting 33.8M rows in quarantine and
+making the metric useless. Moving them to scope-exclusion dropped quarantine
+to 2.2k, which is now low enough to alert on.
+
+### Source data quality is high
+
+Only 12 uncastable values in 181M rows. 1,987 implausible ddates (pre-1990).
+Zero unparseable acceptance timestamps across 426k submissions -- important,
+since accepted_ts is the transaction-time axis for the entire warehouse.
