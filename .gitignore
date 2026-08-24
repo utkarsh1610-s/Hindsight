@@ -4,4 +4,5 @@ data/
 __pycache__/
 .env
 *.png
+!docs/*.png
 *.jpg
