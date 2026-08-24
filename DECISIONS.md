@@ -96,3 +96,31 @@ to 2.2k, which is now low enough to alert on.
 Only 12 uncastable values in 181M rows. 1,987 implausible ddates (pre-1990).
 Zero unparseable acceptance timestamps across 426k submissions -- important,
 since accepted_ts is the transaction-time axis for the entire warehouse.
+
+
+## Phase 3 — Bitemporal core
+
+### Precedence logic extracted as pure functions
+src/hindsight/precedence.py has no Spark or dlt dependency, so the six
+precedence rules are testable against hand-built fixtures in 2 seconds
+rather than a pipeline run over 45M rows.
+
+26 tests, including two real-data regressions (AT&T FY2021 revenue,
+Zillow FY2021 operating income) verified against filings on EDGAR.
+
+### P3 is satisfied structurally, not by code
+"An amendment does not retract facts it does not mention" needs no
+implementation: each natural key gets an independent timeline, so a fact
+absent from an amendment simply has no new entry and its interval continues.
+
+### SIGN_FLIP rule tightened after Zillow
+Original spec treated any sign reversal as a presentation artefact. Zillow
+FY2021 OperatingIncomeLoss went -327.7M -> +239.0M: sign flips, but this is
+the Zillow Offers wind-down -- real economics. Rule now requires magnitude
+preserved within 2% for a sign reversal to count as an artefact. Encoded as
+a regression test.
+
+### pytest on Workspace filesystem
+__pycache__ creation fails with OSError 95 (operation not supported). Needs
+PYTHONDONTWRITEBYTECODE=1 and -p no:cacheprovider. Workspace-specific — do
+NOT carry into the GitHub Actions workflow.
