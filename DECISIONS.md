@@ -124,3 +124,29 @@ a regression test.
 __pycache__ creation fails with OSError 95 (operation not supported). Needs
 PYTHONDONTWRITEBYTECODE=1 and -p no:cacheprovider. Workspace-specific — do
 NOT carry into the GitHub Actions workflow.
+
+### Zero-width intervals (caught by expectation on first pipeline run)
+Two filings accepted at the identical timestamp produced known_from_ts ==
+known_to_ts. The intermediate value was never independently knowable.
+Fix: collapse same-timestamp filings to the last by adsh. The unit tests
+missed this -- test_p2 checked determinism but not interval validity.
+
+### Concept-map collision (caught by I5)
+One filing can report the same canonical concept under multiple source tags.
+CIK 1350102 filed SalesRevenueNet=988,507 and SalesRevenueGoodsNet=156,247
+in the same 10-Q; both map to REVENUE. Without per-filing dedup the oracle
+manufactured a revision that never happened. Resolution: take the larger
+value, since the component is a subset of the total. A cleaner long-term
+rule would use concept_map.confidence to prefer the more comprehensive tag.
+
+### AT&T fixture had the wrong revision date
+Phase 0's two-quarter diff (2022q1 vs 2024q1) found the values correctly but
+attributed the restatement to the 2024 filing. The full timeline shows it
+landed 2023-02-13, in the FY2022 10-K -- the first annual report after the
+April 2022 WarnerMedia spin-off. Same for Zillow (2023-02-15). A sparse diff
+gets values right and timing wrong, and timing is the entire point.
+
+### Stale code, twice
+Streaming checkpoints and Python's module cache both silently ignore code
+changes. Identical output after an edit means the code did not run.
+Fixes: full refresh for pipelines, %autoreload 2 for modules.

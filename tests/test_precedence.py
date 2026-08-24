@@ -20,7 +20,7 @@ def mk(value, accepted, adsh=None, form="10-K", cik=1, tag="REVENUE",
     )
 
 
-# ------------------------------------------------------------------ P1, P2
+# P1, P2
 
 def test_p1_orders_by_acceptance_not_insertion():
     """Later-accepted wins regardless of input order."""
@@ -44,7 +44,7 @@ def test_p2_identical_timestamps_break_deterministically():
     assert build_intervals([a, b]) == build_intervals([b, a])
 
 
-# ---------------------------------------------------------------------- P4
+# P4
 
 def test_p4_identical_reports_do_not_open_new_intervals():
     """The same value re-reported three times is ONE belief, not three."""
@@ -66,7 +66,7 @@ def test_p4_value_returning_to_prior_opens_a_new_interval():
     assert [i.revision_seq for i in ivs] == [1, 2, 3]
 
 
-# ---------------------------------------------------------------------- P6
+# P6
 
 def test_p6_nulls_never_supersede_a_real_value():
     ivs = build_intervals([mk(100, "2022-01-01"), mk(None, "2023-01-01")])
@@ -83,7 +83,7 @@ def test_empty_input():
     assert build_intervals([]) == []
 
 
-# --------------------------------------------------------------- invariants
+# invariants
 
 def _assert_invariants(ivs):
     """I1 no overlaps, I2 exactly one open, I3 contiguous, I4 monotonic."""
@@ -112,7 +112,7 @@ def test_mixed_keys_are_rejected():
                          mk(200, "2023-01-01", tag="ASSETS")])
 
 
-# ------------------------------------------------------------ as-of contract
+# as-of contract
 
 @pytest.fixture
 def timeline():
@@ -139,7 +139,7 @@ def test_absence_is_not_zero(timeline):
     assert as_of(timeline, datetime(2020, 1, 1)) is None
 
 
-# ------------------------------------------------------------ classification
+# classification
 
 @pytest.mark.parametrize("prev,curr,expected", [
     (None,        100,        "FIRST_REPORT"),
@@ -163,13 +163,13 @@ def test_zillow_sign_change_is_a_restatement_not_an_artefact():
     assert classify_revision(Decimal("-327673000"), Decimal("239000000")) == "RESTATEMENT"
 
 
-# --------------------------------------------------- real-data regressions
+# real-data regressions
 
 def test_att_fy2021_revenue_timeline():
     """Ground truth, verified against both filings on EDGAR."""
     ivs = build_intervals([
         mk(168_864_000_000, "2022-02-16 06:30", adsh="0000732717-22-000015", cik=732717),
-        mk(134_038_000_000, "2024-02-23 16:45", adsh="0000732717-24-000009", cik=732717),
+        mk(134_038_000_000, "2023-02-13 16:12", adsh="0000732717-23-000011", cik=732717),
     ])
     _assert_invariants(ivs)
     assert len(ivs) == 2
@@ -177,6 +177,23 @@ def test_att_fy2021_revenue_timeline():
     assert round(ivs[1].pct_change, 3) == 0.206
 
     # What a mid-2023 backtest must see
-    assert as_of(ivs, datetime(2023, 6, 1)).value == Decimal("168864000000")
+    assert as_of(ivs, datetime(2022, 6, 1)).value == Decimal("168864000000")
     # What is true today
     assert as_of(ivs, datetime(2026, 8, 1)).value == Decimal("134038000000")
+
+def test_same_timestamp_collapses_to_one_interval():
+    ivs = build_intervals([
+        mk(100, "2020-11-18 16:16", adsh="000000000-20-000001"),
+        mk(200, "2020-11-18 16:16", adsh="000000000-20-000002"),
+    ])
+    assert len(ivs) == 1
+    assert all(i.known_from_ts < i.known_to_ts for i in ivs)
+
+def test_one_filing_reporting_a_concept_twice_collapses():
+    ivs = build_intervals([
+        mk(988507, "2011-11-10 16:01", adsh="0001350102-11-000017"),
+        mk(156247, "2012-11-08 16:32", adsh="0001350102-12-000070"),
+        mk(988507, "2012-11-08 16:32", adsh="0001350102-12-000070"),
+        mk(989000, "2013-03-14 16:15", adsh="0001350102-13-000006"),
+    ])
+    assert [i.value for i in ivs] == [Decimal("988507"), Decimal("989000")]
