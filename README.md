@@ -255,11 +255,11 @@ discrepancies. That isn't a disclaimer to work around. It's the specification.
 
 ## Dashboard
 
-![Look-ahead bias by quarter](docs/Look-ahead bias.png)
+![Look-ahead bias by quarter](docs/Look_ahead_bias.png)
 
 Percentage of ROA rankings that differ between naive and point-in-time data,
 2012 to 2024Q1.
 
-![Coverage per quarter and revisions lineage](docs/Coverage and Input revisions.png)
+![Coverage per quarter and revisions lineage](docs/Coverage_InputRevisions.png)
 
 Coverage lineage from SEC files through to the bitemporal facts.
