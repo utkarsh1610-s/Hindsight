@@ -150,3 +150,34 @@ gets values right and timing wrong, and timing is the entire point.
 Streaming checkpoints and Python's module cache both silently ignore code
 changes. Identical output after an edit means the code did not run.
 Fixes: full refresh for pipelines, %autoreload 2 for modules.
+
+
+## Phase 4 — The experiment
+
+### Result (2012Q1 - 2024Q1, 49 quarters, ~6,000 companies/quarter)
+- 10.78% of companies had at least one revised input (net income or assets)
+- 3.56% landed in a different ROA decile under naive vs point-in-time data
+- 3.29% of the naive top decile was absent from the point-in-time top decile
+
+### Right-censoring: why the window stops at 2024Q1
+Rates decline sharply in the final quarters (revised rate 8.25% -> 2.96%
+from 2024Q1 to 2025Q4). This is NOT declining restatement activity. Facts
+from 2025 have had months for a correction to arrive; facts from 2012 have
+had 14 years. Recent periods are unrevised because not enough time has
+passed. Including them would publish a false downward trend.
+
+Third false-trend trap found in this dataset, after the segments bug and
+the revenue-tag coverage gap. Rule adopted: rule out a coverage or
+censoring explanation before treating any trend as real.
+
+### Scope of the measurement
+Universe held identical between arms -- same companies, same fiscal periods,
+only values differ. This isolates restatement contamination. Reporting lag
+(assuming FY data was available at fiscal year end rather than at filing)
+is a separate effect and is NOT measured, so 3.29% understates total
+backtest bias.
+
+### Unexplained
+2015Q1 (22.88%) and 2016Q1 (24.38%) revised rates are roughly double
+baseline, both Q1. Likely a specific accounting-standard adoption.
+Not investigated.
